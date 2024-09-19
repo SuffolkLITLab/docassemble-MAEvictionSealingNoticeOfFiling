@@ -1,0 +1,332 @@
+---
+include:
+  - docassemble.AssemblyLine:assembly_line.yml
+---
+metadata:
+  title: >-
+    Notice of filing  template
+  short title: >-
+    Notice of filing  templat
+  description: |-
+    This interview helps someone in Massachusetts file a Notice of filing  template.
+  can_I_use_this_form: |
+    If you are a tenant who has been evicted, you can use this interview to notify the landlord who evicted you that you are petitioning to have your eviction sealed.
+  before_you_start: |
+    This interview will help you file a Notice of filing  template.
+    
+    Before you get started, please gather your:
+    
+    1. Petition to Seal Eviction
+    1. 
+    1. 
+    
+    When you are finished, you will need to:
+    
+    1. Send your notice form to your previous landlord.
+    1.
+  maturity: production
+  estimated_completion_minutes: 10
+  estimated_completion_delta: 5
+  tags: []
+  authors:
+    - Michael Bergin
+  original_form: []
+  original_form_published_on: ""
+  allowed_courts: 
+    - "Boston Municipal Court"
+    - "District Court"
+    - "Housing Court"
+    - "Superior Court"
+  typical_role: "plaintiff"
+  al_weaver_version: "1.11.0"
+  generated_on: "2024-09-16"
+  languages:
+    - en
+  jurisdiction: NAM-US-US+MA
+  review_date: 2024-09-16
+  form_titles:
+    - Notice of filing  template
+  form_numbers: []
+  update_notes: |
+---
+code: |
+  # This controls the default country and list of states in address field questions
+  AL_DEFAULT_COUNTRY = "US"
+---
+code: |
+  # This controls the default state in address field questions
+  AL_DEFAULT_STATE = "MA"
+---
+code: |
+  github_repo_name =  'docassemble-NoticeOfFilingTemplate'
+---
+code: |
+  interview_short_title = "File a Notice of filing  template"
+---
+code: |
+  al_form_type = "existing_case" 
+---
+objects:
+  - users: ALPeopleList.using(there_are_any=True)
+---
+sections:
+  - review_notice_of_filing_template: Review your answers
+---
+#################### Interview order #####################
+comment: |
+  Controls order and branching logic for questions specific to this form
+id: interview_order_notice_of_filing_template
+code: |
+  # Set the allowed courts for this interview
+  allowed_courts = ['Boston Municipal Court', 'District Court', 'Housing Court', 'Superior Court']
+  nav.set_section("review_notice_of_filing_template")
+  user_role = "plaintiff"
+  user_ask_role = "plaintiff"
+  users.gather()
+  set_parts(subtitle=str(users))
+  has_petition
+  landlords_address_street
+  set_progress(20)
+  eviction_reason
+  users[0].address.address
+  trial_court.department
+  set_progress(40)
+  trial_court.division
+  docket_number
+  interview_order_notice_of_filing_template = True
+---
+###################### Main order ######################
+comment: |
+  This block includes the logic for standalone interviews.
+  Delete mandatory: True to include in another interview
+mandatory: True
+code: |
+  al_intro_screen
+  notice_of_filing_template_intro
+  interview_order_notice_of_filing_template
+  signature_date
+  # Store anonymous data for analytics / statistics
+  store_variables_snapshot(
+      persistent=True,
+      data={
+          "zip": showifdef("users[0].address.zip"),
+          "reached_interview_end": True,
+      },
+  )
+  notice_of_filing_template_download
+---
+id: Notice_of_filing_template
+continue button field: notice_of_filing_template_intro
+question: |
+  Notice of filing  template
+subquestion: |
+  This interview will help you file a Notice of filing  template.
+  
+  Before you get started, please gather:
+  
+  1. 
+  1. 
+  1. 
+  
+  When you are finished, you will need to:
+  
+  1. 
+  1.
+
+  If you are a _____________, you can use this interview to ____________.
+
+  Most people take about 10 minutes to complete this interview.
+---
+id: Screen one
+question: |
+  You will need your petition in order to complete this form.
+fields:
+  - "Do you have your petition with you?": has_petition
+    datatype: yesnoradio
+% if has_petition == no:
+exit
+% endif
+---
+id: Screen two
+question: |
+  Screen two
+fields:
+  - "Landlords address street": landlords_address_street
+  - "Landlords address city": landlords_address_city
+  - "Landlords address state": landlords_address_state
+  - "Landlords address zip": landlords_address_zip
+  - "Landlords address unit": landlords_address_unit
+  - "Landlords name": landlords_name
+---
+id: Screen three
+question: |
+  Screen three
+fields:
+  - "Eviction reason/outcome": eviction_reason
+    input type: radio
+    choices:
+      - Nonpayment of rent
+      - Fault eviction
+      - No-fault eviction
+      - Eviction was dismissed
+      - Eviction resulted in judgment in my favor
+---
+id: Screen four
+question: |
+  Screen four
+fields:
+  - "Trial Court Department": trial_court.department
+  - "Trial Court Divison": trial_court.division
+  - "Court address street": courts_address_street
+  - "Court address city": courts_address_city
+  - "Court address state": courts_address_state
+  - "Court address zip": courts_address_zip
+---
+id: preview notice_of_filing_template
+question: |
+  Preview your form before you sign it
+subquestion: |
+  Here is a preview of the form you will sign on the next page.   
+  
+  ${ al_court_bundle.as_pdf(key='preview') }
+
+  Click the image to open it in a new tab. Click the "Edit answers" button
+  to edit your answers.
+
+  ${ action_button_html(url_action('review_notice_of_filing_template'), label='Edit answers', color='info') }
+  
+  Remember to come back to this window to continue and sign your form.
+continue button field: notice_of_filing_template_preview_question    
+---
+code: |
+  signature_fields = []
+---
+code: |
+  # This is a placeholder for the addresses that will be searched
+  # for matching address to court. Edit if court venue is based on 
+  # a different address than the user's
+  [user.address.address for user in users.complete_elements()]
+  addresses_to_search = [user.address for user in users.complete_elements()]
+---
+id: notice of filing template review screen
+event: review_notice_of_filing_template
+question: |
+  Review your answers
+review:
+  - Edit: landlords_address_street
+    button: |
+      **Landlords address street**:
+      ${ landlords_address_street }
+  - Edit: landlords_address_city
+    button: |
+      **Landlords address city**:
+      ${ landlords_address_city }
+  - Edit: users.revisit
+    button: |
+      **Users**
+
+      % for item in users:
+        * ${ item }
+      % endfor
+  - Edit: landlords_address_state
+    button: |
+      **Landlords address state**:
+      ${ landlords_address_state }
+  - Edit: landlords_address_zip
+    button: |
+      **Landlords address zip**:
+      ${ landlords_address_zip }
+  - Edit: has_petition
+    button: |
+      **Has petition**:
+      ${ word(yesno(has_petition)) }
+  - Edit: landlords_address_unit
+    button: |
+      **Landlords address unit**:
+      ${ landlords_address_unit }
+  - Edit: eviction_reason
+    button: |
+      **Eviction reason/outcome**:
+      ${ eviction_reason }
+  - Edit: trial_court
+    button: |
+      **Trial court**
+  
+      % if defined("trial_court.department"):
+      * department: ${ trial_court.department }
+      % endif
+      % if defined("trial_court.division"):
+      * division: ${ trial_court.division }
+      % endif
+  - Edit: landlords_name
+    button: |
+      **Landlords name**:
+      ${ landlords_name }
+  - Edit: docket_number
+    button: |
+      **Docket number**:
+      ${ docket_number }
+---
+continue button field: users.revisit
+question: |
+  Edit users
+subquestion: |
+  ${ users.table }
+
+  ${ users.add_action() }
+---
+table: users.table
+rows: users
+columns:
+  - Address: |
+      row_item.address.block() if defined("row_item.address.address") else ""
+  - Name: |
+      row_item.name.full() if defined("row_item.name.first") else ""
+edit:
+  - address.address
+  - name.first
+confirm: True
+
+---
+id: download notice_of_filing_template
+event: notice_of_filing_template_download
+question: |
+  All done
+subquestion: |
+  Thank you ${users}. Your form is ready to download and deliver.
+  
+  View, download and send your form below. Click the "Edit answers" button to fix any mistakes.
+
+  ${ action_button_html(url_action('review_notice_of_filing_template'), label='Edit answers', color='info') }
+  
+  
+  ${ al_user_bundle.download_list_html() }
+  
+
+  ${ al_user_bundle.send_button_html(show_editable_checkbox=True) }
+
+progress: 100
+---
+# ALDocument objects specify the metadata for each template
+objects:
+  - notice_of_filing_template_attachment: ALDocument.using(title="Notice of filing  template", filename="notice_of_filing_template", enabled=True, has_addendum=False, )
+---
+# Bundles group the ALDocuments into separate downloads, such as for court and for the user
+objects:
+  - al_user_bundle: ALDocumentBundle.using(elements=[notice_of_filing_template_attachment], filename="notice_of_filing_template", title="All forms to download for your records", enabled=True)
+  - al_court_bundle: ALDocumentBundle.using(elements=[notice_of_filing_template_attachment],  filename="notice_of_filing_template", title="All forms to deliver to court", enabled=True)
+---
+# Each attachment defines a key in an ALDocument. We use `i` as the placeholder here so the same template is 
+# used for "preview" and "final" keys, and logic in the template checks the value of 
+# `i` to show or hide the user's signature
+---
+attachment:
+  name: notice of filing template
+  filename: notice_of_filing_template
+  variable name: notice_of_filing_template_attachment[i]
+  skip undefined: True
+  docx template file: notice_of_filing_template.docx
+  tagged pdf: True
+
+
+
