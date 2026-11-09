@@ -85,6 +85,8 @@ code: |
   users.gather()
   set_parts(subtitle=str(users))
   has_petition
+  if not has_petition:
+    need_petition
   landlords_address_street
   set_progress(20)
   eviction_reason
@@ -143,9 +145,13 @@ question: |
 fields:
   - "Do you have your petition with you?": has_petition
     datatype: yesnoradio
-% if has_petition == no:
-exit
-% endif
+---
+id: need_petition
+event: need_petition
+question: |
+  You will need you petition in order to complete this form
+subquestion: |
+  When you have your petition, you can click "back" to continue.
 ---
 id: Screen two
 question: |
@@ -267,6 +273,7 @@ review:
       **Docket number**:
       ${ docket_number }
 ---
+id: edit users
 continue button field: users.revisit
 question: |
   Edit users
